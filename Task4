@@ -1,0 +1,50 @@
+// App.jsx - Basic React PWA for E-Commerce
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Product from "./pages/Product";
+import Cart from "./pages/Cart";
+import Header from "./components/Header";
+import "./App.css";
+
+export default function App() {
+  return (
+    <Router>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/product/:id" element={<Product />} />
+        <Route path="/cart" element={<Cart />} />
+      </Routes>
+    </Router>
+  );
+}"
+
+// service-worker.js - Service Worker for Caching
+const CACHE_NAME = "pwa-ecommerce-cache-v1";
+const urlsToCache = ["/", "/index.html", "/static/js/bundle.js"];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(urlsToCache);
+    })
+  );
+});
+
+self.addEventListener("fetch", (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
+  );
+});
+
+// Push Notification Listener
+self.addEventListener("push", (event) => {
+  const data = event.data?.json();
+  self.registration.showNotification(data.title, {
+    body: data.body,
+    icon: "/logo192.png",
+  });
+});
